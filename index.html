@@ -3,231 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puzzle Game</title>
-
+    <title>Professional Slide Puzzle</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bruno+Ace&display=swap');
 
-        *{
-            padding:0;
-            margin:0;
+        :root {
+            --bg-color: #212529;
+            --tile-size: 140px;
+            --gap: 5px;
+            --accent-color: #40916c;
+            --font-main: 'Bruno Ace', cursive;
         }
 
-        body{
-            height:100vh;
-            background-color: #212529;
-            display:flex;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        .Refresh, .Solve{
-            position: absolute;
-            padding:10px;
-            border-radius: 50%;
-            cursor:pointer;
-            margin:20px;
-        }
-
-        .Solve{
-            right: 60px;
-        }
-
-        .conatiner{
-            width:450px;
-            margin:auto;
-            height:450px;
-            background-size:cover;
-            display:grid;
-            grid-template-columns: 150px 150px 150px;
-            grid-template-rows: 150px 150px 150px;
-        }
-
-        .tile{
-            background: url("./it\'s-Me.png");
-            font-weight:900;
-            font-family: 'Bruno Ace', cursive;
-            font-size:2em;
-            background-size:450px 450px;
-            margin:3px;
-            padding:15px;
-            border-radius: 5px;
-            transition-duration: 0.5s;
-            -webkit-text-stroke:0.001px white;
-        }
-
-        .tile:nth-child(1){background-position: 0px 0px}
-        .tile:nth-child(2){background-position: -150px 0px}
-        .tile:nth-child(3){background-position: -300px -0px}
-        .tile:nth-child(4){background-position: 0px -150px}
-        .tile:nth-child(5){background-position: -150px -150px}
-        .tile:nth-child(6){background-position: -300px -150px}
-        .tile:nth-child(7){background-position: 0px -300px}
-        .tile:nth-child(8){background-position: -150px -300px}
-
-        .emtile{
-            /* empty tile */
-        }
-
-        .blscreen{
-            position: fixed;
-            width:100vw;
-            height:100vh;
-            display:none;
-            background-color: rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(2px);
-        }
-
-        .winScreen{
-            width:600px;
-            height:300px;
-            margin:auto;
-            background-color: #ced4da;
-            border-radius:10px;
-            display:flex;
-            font-family: sans-serif;
-            box-shadow: 1px 1px 10px 5px rgba(0, 0, 0,0.5);
-        }
-
-        .winScreen>img{
-            width:300px;
-            height:300px;
-            border-radius: 10px;
-        }
-
-        .WinMessage{
-            width:300px;
+        body {
+            height: 100vh;
+            background-color: var(--bg-color);
             display: flex;
-            flex-direction: column;
-            padding:10px;
-            font-size: 1.1em;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
 
-        h2{
-            text-align:center;
-            padding:5px;
+        /* --- Controls --- */
+        .refresh-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 12px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            background: #fff;
+            transition: transform 0.3s ease;
         }
 
-        .buttonGroup{
-            margin:auto;
+        .refresh-btn:hover { transform: rotate(180deg); }
+
+        /* --- Game Board --- */
+        .container {
+            display: grid;
+            grid-template-columns: repeat(3, var(--tile-size));
+            grid-template-rows: repeat(3, var(--tile-size));
+            gap: var(--gap);
+            border: 2px solid #444;
+            padding: 5px;
+            background: #343a40;
+            border-radius: 8px;
         }
 
-        .buttonGroup>button{
-            padding:5px 20px;
-            border-radius:20px;
-            margin:10px;
-            font-size: 1.1em;
-            background-color: #40916c;
-            font-weight: bolder;
-            color:white;
-            font-family: 'Bruno Ace';
-            cursor:pointer;
+        .tile {
+            width: 100%;
+            height: 100%;
+            background-image: url("it\'s-Me.png");
+            background-size: calc(var(--tile-size) * 3) calc(var(--tile-size) * 3);
+            font-family: var(--font-main);
+            font-size: 1.5rem;
+            color: white;
+            display: flex;
+            align-items: flex-start;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        .tile:hover { filter: brightness(1.2); }
+
+        .emtile { background: transparent; }
+
+        /* --- Win Screen --- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .win-card {
+            background: #f8f9fa;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+        }
+
+        .win-card img { width: 100%; height: 200px; object-fit: cover; }
+
+        .win-content { padding: 20px; font-family: sans-serif; }
+
+        .star-group { margin: 15px 0; }
+        .star-group svg { width: 40px; fill: #dee2e6; transition: fill 0.3s; }
+        .star-group svg.active { fill: #ffc107; }
+
+        .play-again {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 25px;
+            font-family: var(--font-main);
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 500px) {
+            :root { --tile-size: 100px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Refresh & Solve Buttons -->
-    <button class="Refresh" onclick="location.reload()">
-        <svg width="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-            <path d="M463.5 224H472c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 183c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H463.5z"/>
-        </svg>
+    <button class="refresh-btn" onclick="initGame()">
+        <svg width="20" viewBox="0 0 512 512"><path d="M463.5 224H472c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 183c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H463.5z"/></svg>
     </button>
-    <button class="Solve" onclick="SolvePuzzle()">Solve</button>
 
-    <!-- Puzzle Container -->
-    <div class="conatiner">
-        <div class="tile" onclick="MoveMe(0)">1</div>
-        <div class="tile" onclick="MoveMe(1)">2</div>
-        <div class="tile" onclick="MoveMe(2)">3</div>
-        <div class="tile" onclick="MoveMe(3)">4</div>
-        <div class="tile" onclick="MoveMe(4)">5</div>
-        <div class="tile" onclick="MoveMe(5)">6</div>
-        <div class="tile" onclick="MoveMe(6)">7</div>
-        <div class="tile" onclick="MoveMe(7)">8</div>
-        <div class="emtile"></div>
-    </div>
+    <div class="container" id="board"></div>
 
-    <!-- Win Screen -->
-    <div class="blscreen">
-        <div class="winScreen">
-            <img src="https://images.unsplash.com/photo-1679931974847-bbb01236fe88?crop=entropy&cs=srgb&fm=jpg&ixid=MnwzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE2ODIwNDg5Mzc&ixlib=rb-4.0.3&q=85" alt="">
-            <div class="WinMessage">
-                <h2>You Won The Match</h2>
-                <div class="StarGroup">
-                    <svg viewBox="0 0 576 512" width="90" title="star">
-                        <path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
-                    </svg>
-                    <svg viewBox="0 0 576 512" width="90" title="star">
-                        <path  d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
-                    </svg>
-                    <svg  viewBox="0 0 576 512" width="90" title="star">
-                        <path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
-                    </svg>
-                </div>
-                Moves: <i class="MovesCount"></i>
-                <div class="buttonGroup">
-                    <button onclick="location.reload()">Play Again!</button>
-                </div>
+    <div class="modal-overlay" id="winScreen">
+        <div class="win-card">
+            <img src="it's-Me.png" alt="Victory">
+            <div class="win-content">
+                <h2>PUZZLE SOLVED!</h2>
+                <div class="star-group" id="stars">
+                    </div>
+                <p>Moves: <b id="finalMoves">0</b></p>
+                <button class="play-again" onclick="initGame()">Play Again</button>
             </div>
         </div>
     </div>
 
-    <script>
-        var MovesCount=0;
+<script>
+    const board = document.getElementById('board');
+    const winScreen = document.getElementById('winScreen');
+    const finalMovesLabel = document.getElementById('finalMoves');
+    const starContainer = document.getElementById('stars');
+    
+    let moves = 0;
+    let positions = []; // Current state of the board
 
-        function randomPos(){
-            var arr = [];
-            while(arr.length < 9){
-                var r = ((Math.floor(Math.random() * 3)+1).toString())+((Math.floor(Math.random() * 3)+1).toString());
-                if(arr.indexOf(r) === -1) arr.push(r);
-            }
-            return arr;
+    // Helper: Correct background positions for 3x3 grid
+    const getBgPos = (val) => {
+        const row = Math.floor((val - 1) / 3);
+        const col = (val - 1) % 3;
+        return `${-col * 100}% ${-row * 100}%`;
+    };
+
+    function initGame() {
+        moves = 0;
+        winScreen.style.display = 'none';
+        
+        // Generate a solvable shuffle (Fisher-Yates + Inversion Check)
+        let solvable = false;
+        while (!solvable) {
+            positions = [1, 2, 3, 4, 5, 6, 7, 8, null].sort(() => Math.random() - 0.5);
+            solvable = isSolvable(positions);
         }
+        render();
+    }
 
-        var RandomPos=randomPos();
-
-        for(let i =0;i<document.getElementsByClassName("tile").length;i++){
-            document.getElementsByClassName("tile")[i].style.gridArea=RandomPos[i][0]+"/"+RandomPos[i][1];
-        }
-
-        function MoveMe(tile){
-            var EmptyTile=document.querySelector(".emtile")
-            var Possibilties=[
-                parseInt(RandomPos[tile][0])+1==parseInt(RandomPos[8][0])&&parseInt(RandomPos[tile][1])==parseInt(RandomPos[8][1]),
-                parseInt(RandomPos[tile][0])-1==parseInt(RandomPos[8][0])&&parseInt(RandomPos[tile][1])==parseInt(RandomPos[8][1]),
-                parseInt(RandomPos[tile][1])+1==parseInt(RandomPos[8][1])&&parseInt(RandomPos[tile][0])==parseInt(RandomPos[8][0]),
-                parseInt(RandomPos[tile][1])-1==parseInt(RandomPos[8][1])&&parseInt(RandomPos[tile][0])==parseInt(RandomPos[8][0]),
-            ]
-            if(Possibilties[0]||Possibilties[1]||Possibilties[2]||Possibilties[3]){
-                MovesCount++;
-                EmptyTile.style.gridArea=RandomPos[tile][0]+"/"+RandomPos[tile][1];
-                document.querySelectorAll(".tile")[tile].style.gridArea=RandomPos[8][0]+"/"+RandomPos[8][1];
-
-                var CurrentTile=RandomPos[tile]
-                RandomPos[tile]=RandomPos[8]
-                RandomPos[8]=CurrentTile;
-                NeededPos=["11","12","13","21","22","23","31","32","33"]
-                if(RandomPos.join(".")==NeededPos.join(".")){
-                    console.log("Game Beated");
-                    document.querySelector(".blscreen").style.display='flex'
-                    document.querySelector(".MovesCount").innerHTML=MovesCount;
-                }
+    function isSolvable(arr) {
+        let inversions = 0;
+        const flat = arr.filter(n => n !== null);
+        for (let i = 0; i < flat.length; i++) {
+            for (let j = i + 1; j < flat.length; j++) {
+                if (flat[i] > flat[j]) inversions++;
             }
         }
+        return inversions % 2 === 0;
+    }
 
-        // Solve Puzzle Function
-        function SolvePuzzle() {
-            var tiles = document.getElementsByClassName("tile");
-            var NeededPos = ["11","12","13","21","22","23","31","32","33"];
-            for(let i = 0; i < tiles.length; i++){
-                tiles[i].style.gridArea = NeededPos[i][0] + "/" + NeededPos[i][1];
-                RandomPos[i] = NeededPos[i];
+    function render() {
+        board.innerHTML = '';
+        positions.forEach((val, idx) => {
+            const tile = document.createElement('div');
+            if (val === null) {
+                tile.className = 'emtile';
+            } else {
+                tile.className = 'tile';
+                tile.innerText = val;
+                tile.style.backgroundPosition = getBgPos(val);
+                tile.onclick = () => moveTile(idx);
             }
-            document.querySelector(".emtile").style.gridArea = "33/3";
-            MovesCount++;
-            document.querySelector(".blscreen").style.display='flex';
-            document.querySelector(".MovesCount").innerHTML = MovesCount;
-        }
-    </script>
+            board.appendChild(tile);
+        });
+    }
 
+    function moveTile(idx) {
+        const emptyIdx = positions.indexOf(null);
+        const neighbors = getNeighbors(emptyIdx);
+
+        if (neighbors.includes(idx)) {
+            moves++;
+            [positions[idx], positions[emptyIdx]] = [positions[emptyIdx], positions[idx]];
+            render();
+            checkWin();
+        }
+    }
+
+    function getNeighbors(idx) {
+        const neighbors = [];
+        if (idx % 3 > 0) neighbors.push(idx - 1); // Left
+        if (idx % 3 < 2) neighbors.push(idx + 1); // Right
+        if (idx - 3 >= 0) neighbors.push(idx - 3); // Top
+        if (idx + 3 < 9) neighbors.push(idx + 3);  // Bottom
+        return neighbors;
+    }
+
+    function checkWin() {
+        const winState = [1, 2, 3, 4, 5, 6, 7, 8, null];
+        if (positions.every((val, i) => val === winState[i])) {
+            showWinScreen();
+        }
+    }
+
+    function showWinScreen() {
+        winScreen.style.display = 'flex';
+        finalMovesLabel.innerText = moves;
+        
+        let stars = 0;
+        if (moves < 50) stars = 3;
+        else if (moves < 100) stars = 2;
+        else stars = 1;
+
+        starContainer.innerHTML = '';
+        for (let i = 0; i < 3; i++) {
+            const active = i < stars ? 'active' : '';
+            starContainer.innerHTML += `<svg class="${active}" viewBox="0 0 576 512"><path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/></svg>`;
+        }
+    }
+
+    initGame();
+</script>
 </body>
 </html>
